@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "596944786720",
+    "project_id": "essamay-4f6ad",
+    "storage_bucket": "essamay-4f6ad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:596944786720:android:9eab014d0a2326e454f345",
+        "android_client_info": {
+          "package_name": "com.essamayari.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWwcIaBTmS3mZDIIs-_BxGOVlNsNM1UlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
