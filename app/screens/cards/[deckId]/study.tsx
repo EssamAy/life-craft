@@ -1,9 +1,14 @@
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import React, {useEffect} from "react";
 import {useAppDispatch, useAppSelector} from "@/hooks/state";
-import {fetchCardsToStudy, selectCardsToStudyCount, selectCurrentStudyingCardIndex} from "@/store/flashCardsSlice";
-import {Link, useLocalSearchParams} from "expo-router";
+import {
+    fetchCardsToStudy,
+    finishFlashCardsSession,
+    selectCardsToStudyCount,
+    selectCurrentStudyingCardIndex
+} from "@/store/flashCardsSlice";
+import {Link, router, useLocalSearchParams} from "expo-router";
 import Flashcards from "@/components/cards/Flashcards";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +19,11 @@ export default function Study() {
     const index = useAppSelector(selectCurrentStudyingCardIndex)
     const count = useAppSelector(selectCardsToStudyCount)
 
+    const finishSession = () => {
+        dispatch(finishFlashCardsSession(params.deckId))
+        router.replace(`/screens/cards/${params.deckId}`)
+    }
+
 
     useEffect(() => {
         dispatch(fetchCardsToStudy(params.deckId))
@@ -21,9 +31,9 @@ export default function Study() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-                <Link href={`/screens/cards/${params.deckId}`} style={styles.buttonLeft}>
+                <Pressable onPress={finishSession} style={styles.buttonLeft}>
                     <Ionicons name="close" size={24} color="black"/>
-                </Link>
+                </Pressable>
                 <Text style={{
                     backgroundColor: '#f2f2f2',
                     paddingHorizontal: 5,

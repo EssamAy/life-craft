@@ -34,25 +34,3 @@ export const readableNextReviewActionTime = (seconds: number): string => {
         }
     return seconds.toString();
 };
-
-export const readableCardAvailabilityTime = (dateInSeconds: number): string => {
-    const aDayInSeconds = 86400;
-
-    const midNightTimeInSeconds = ((new Date()).setHours(24,0,0,0)) / 1000
-
-
-    if(dateInSeconds < midNightTimeInSeconds) {
-        return 'Today'
-    }
-
-
-
-    if(dateInSeconds < midNightTimeInSeconds + aDayInSeconds) {
-        return 'Tomorrow'
-    }
-
-    const diffFromNow = dateInSeconds - (Date.now() / 1000)
-    const diffToMidnight = midNightTimeInSeconds - (Date.now() / 1000)
-    const numberOfDays = Math.floor((diffFromNow + diffToMidnight) / aDayInSeconds)
-    return `In ${numberOfDays} days`;
-};

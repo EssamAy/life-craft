@@ -5,7 +5,12 @@ import {Deck} from "@/models/deck";
 import { MaterialIcons } from '@expo/vector-icons';
 import {Link, useLocalSearchParams} from "expo-router";
 import {useAppSelector} from "@/hooks/state";
-import {selectCardsNotStudiedCountByDeckId, selectCardsToReviewCountByDeckId} from "@/store/flashCardsSlice";
+import {
+    selectCardsNotStudiedCountByDeckId,
+    selectCardsToReviewCountByDeckId, selectCardsToStudyCountByDeckId,
+    selectCardsTotalCountByDeckId
+} from "@/store/flashCardsSlice";
+import {Colors} from "@/constants/Colors";
 
 
 interface HeroSectionProps {
@@ -15,6 +20,8 @@ const HeroSection = ({deck}: HeroSectionProps) => {
     const params = useLocalSearchParams()
     const notStudied = useAppSelector(selectCardsNotStudiedCountByDeckId(params.deckId))
     const toReview = useAppSelector(selectCardsToReviewCountByDeckId(params.deckId))
+    const totalCount = useAppSelector(selectCardsTotalCountByDeckId(params.deckId))
+    const studyEnabled = useAppSelector(selectCardsToStudyCountByDeckId(params.deckId)) > 0
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -24,8 +31,15 @@ const HeroSection = ({deck}: HeroSectionProps) => {
                     General spaced repetition</Text>
             </View>
             <View style={styles.statsContainer}>
-                <Text style={styles.title}>Cards for today</Text>
+                <Text style={styles.cardsForToday}>Cards for today</Text>
                 <View style={styles.stats}>
+                    <View style={styles.statItem}>
+                        <View style={styles.cardsCountPerType}>
+                            <MaterialIcons name="library-add" color="gray" size={32}/>
+                            <Text style={{fontWeight: "bold", fontSize: 20}}>{totalCount}</Text>
+                        </View>
+                        <Text>Total cards</Text>
+                    </View>
                     <View style={styles.statItem}>
                         <View style={styles.cardsCountPerType}>
                             <MaterialIcons name="library-add" color="gray" size={32}/>
@@ -41,7 +55,7 @@ const HeroSection = ({deck}: HeroSectionProps) => {
                         <Text>To review</Text>
                     </View>
                 </View>
-                <Link href={"screens/cards/" + deck.id + "/study"} style={styles.studyButton}>Study cards</Link>
+                <Link disabled={!studyEnabled} href={"screens/cards/" + deck.id + "/study"} style={studyEnabled ? styles.studyButton : {...styles.studyButton, opacity: 0.5}}>Study cards</Link>
 
             </View>
 
@@ -54,14 +68,20 @@ const styles = StyleSheet.create({
 
     container: {
         backgroundColor: '#fff', // Customize your background color
+        marginBottom: 5
     },
     header: {
-        paddingVertical: 20,
+        paddingTop: 20,
         paddingHorizontal: 16,
         marginBottom: 5
     },
     title: {
         fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    cardsForToday: {
+        fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 8,
     },
@@ -76,7 +96,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: '#f2f2f2',
+        backgroundColor: Colors.gray,
         padding: 20,
         borderRadius: 10,
         marginBottom: 20
@@ -87,11 +107,11 @@ const styles = StyleSheet.create({
     },
     cardsCountPerType: {
         flexDirection: "row",
-        marginHorizontal: 40,
+        marginHorizontal: 25,
         alignItems: "center"
     },
     studyButton: {
-        backgroundColor: '#3074ee',
+        backgroundColor: Colors.primary,
         color: "white",
         textAlign: "center",
         padding:18,

@@ -1,17 +1,32 @@
-import {Pressable, StyleSheet, Text, View} from "react-native";
-import React from "react";
+import {StyleSheet, Text, View} from "react-native";
+import React, {useEffect} from "react";
 import {Deck} from "@/models/deck";
 import {Link} from "expo-router";
-import {readableNextReviewActionTime} from "@/utils/time";
+import {useAppDispatch, useAppSelector} from "@/hooks/state";
+import {fetchReadyToStudyCountByDeckId, selectCardsToStudyCountByDeckId} from "@/store/flashCardsSlice";
+import {Colors} from "@/constants/Colors";
 
 interface ListItemProps {
     deck: Deck
 }
 export default function ListItem({deck}: Readonly<ListItemProps>) {
+
+    const dispatch = useAppDispatch()
+    const readyToStudyCount = useAppSelector(selectCardsToStudyCountByDeckId(deck.id))
+
+    useEffect(() => {
+        dispatch(fetchReadyToStudyCountByDeckId(deck.id))
+    }, [deck]);
+
     return <Link href={"screens/cards/" + deck.id} style={styles.deckListItem}>
         <View >
-            <Text>{deck.name}</Text>
-            <Text>Cards for today: 7</Text>
+            <Text style={{fontWeight: 'bold'}}>{deck.name}</Text>
+            {
+                readyToStudyCount > 0 && <Text style={{color: Colors.darkGray}}>Ready to study: {readyToStudyCount}</Text>
+            }
+            {
+                readyToStudyCount <= 0 && <Text style={{color: Colors.success}}>Completed for now</Text>
+            }
         </View>
     </Link>
 
@@ -20,9 +35,8 @@ export default function ListItem({deck}: Readonly<ListItemProps>) {
 const styles = StyleSheet.create({
     deckListItem: {
         backgroundColor: '#fff',
-        padding: 20,
-        margin: 5,
-        borderRadius: 5,
-        fontSize: 20
+        padding: 15,
+        borderBottomWidth: 1,
+        borderColor: '#f2f2f2',
     }
 });

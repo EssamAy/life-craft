@@ -1,12 +1,20 @@
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, Pressable, StyleSheet, View} from 'react-native';
 import React, {useEffect} from "react";
 import TopBar from "@/components/cards/TopBar";
 import ListItem from "@/components/cards/ListItem";
 import HeroSection from "@/components/cards/Hero";
 import {useAppDispatch, useAppSelector} from "@/hooks/state";
-import {fetchCardsByDeckId, selectCardsByDeckId, selectDeckById} from "@/store/flashCardsSlice";
-import {Link, useLocalSearchParams} from "expo-router";
+import {
+    fetchCardsByDeckId,
+    selectCardsByDeckId,
+    selectDeckById,
+    setCreateCardModalVisible
+} from "@/store/flashCardsSlice";
+import {useLocalSearchParams} from "expo-router";
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {AntDesign} from "@expo/vector-icons";
+import {Colors} from "@/constants/Colors";
+import AddCard from "@/components/cards/AddCard";
 
 
 export default function Deck() {
@@ -16,14 +24,14 @@ export default function Deck() {
 
     const dispatch = useAppDispatch()
 
-    const fetchData = () => {
+    const fetchData = (paginate: boolean = true) => {
 
-        dispatch(fetchCardsByDeckId(params.deckId))
+        dispatch(fetchCardsByDeckId(params.deckId, paginate))
 
     }
     useEffect(() => {
-        fetchData()
-    }, [params.deckId]);
+        fetchData(false)
+    }, [params.deckId, dispatch]);
 
 
     if(!deck) {
@@ -37,7 +45,7 @@ export default function Deck() {
                     ListHeaderComponent={<HeroSection deck={deck} />}
                     data={cards}
                     renderItem={({item}) => <ListItem card={item} />}
-                    onEndReached={fetchData}
+                    onEndReached={() => fetchData(true)}
                     onEndReachedThreshold={0.8}
                 />
 
@@ -50,10 +58,23 @@ export default function Deck() {
                 width: '100%',
                 position: "absolute"
             }}>
-                <Link
-                    style={styles.addButton}
-                    href={"screens/cards/"+params.deckId+"/add"}
-                >Add card</Link>
+                <AddCard deckId={params.deckId}></AddCard>
+                <Pressable
+                    style={{
+                        position: 'absolute',
+                        bottom: 10,
+                        right: 10,
+                        backgroundColor: Colors.primary,
+                        height: 56,
+                        width: 56,
+                        borderRadius: 56,
+                        alignItems: "center",
+                        justifyContent: "center"
+                    }}
+                    onPress={() => dispatch(setCreateCardModalVisible(true))}
+                >
+                    <AntDesign name="pluscircleo" color="white" size={32}/>
+                </Pressable>
             </View>
 
         </SafeAreaView>

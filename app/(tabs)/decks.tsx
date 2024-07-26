@@ -4,7 +4,7 @@ import AddDeck from "@/components/decks/AddDeck";
 import TopBar from "@/components/decks/TopBar";
 import ListItem from "@/components/decks/ListItem";
 import {useAppDispatch, useAppSelector} from "@/hooks/state";
-import {fetchDecks, selectDecks, setCreateDeckModalVisible} from "@/store/flashCardsSlice";
+import {fetchDecks, reCalculateStatsForAllDecks, selectDecks, setCreateDeckModalVisible} from "@/store/flashCardsSlice";
 import {AntDesign} from '@expo/vector-icons';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import ScrollView = Animated.ScrollView;
@@ -17,8 +17,11 @@ export default function Decks() {
 
 
     useEffect(() => {
+        setInterval(() => {
+            dispatch(reCalculateStatsForAllDecks())
+        }, 30000)
         dispatch(fetchDecks())
-    }, []);
+    }, [dispatch]);
 
     const handleOpenModal = () => {
         dispatch(setCreateDeckModalVisible(true));
@@ -27,7 +30,7 @@ export default function Decks() {
     return (
         <SafeAreaView style={styles.container}>
                 <TopBar/>
-                <ScrollView>
+                <ScrollView style={{backgroundColor: '#fff'}}>
                     {decks.map((deck, index) => (
                         <ListItem key={deck.id} deck={deck}/>
                     ))}

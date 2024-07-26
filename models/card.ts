@@ -3,6 +3,7 @@ export interface CardsData {
     totalCount: number,
     toReviewCount: number,
     notStudiedCount: number,
+    readyToStudyCount: number | null,
 }
 export interface Card {
     id: string,

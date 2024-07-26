@@ -1,5 +1,4 @@
-// HalfScreenModal.js
-import React, {useState} from 'react';
+import React from 'react';
 import {
     Button,
     Modal,
@@ -12,36 +11,32 @@ import {
     View
 } from 'react-native';
 import {Ionicons} from "@expo/vector-icons";
-import * as firestore from '@react-native-firebase/firestore';
 import {useAppDispatch, useAppSelector} from "@/hooks/state";
-import {selectCreateDeckModalVisible, setCreateDeckModalVisible} from "@/store/flashCardsSlice";
-
+import {
+    createDeck,
+    selectCreateDeckModalVisible,
+    selectCreateDeckName,
+    setCreateDeckModalVisible,
+    setCreateDeckName
+} from "@/store/flashCardsSlice";
 
 
 const AddDeck = () => {
 
     const dispatch = useAppDispatch()
-    const [name, setName] = useState('')
+    const name = useAppSelector(selectCreateDeckName)
 
     const isCreateDeckModalVisible = useAppSelector(selectCreateDeckModalVisible);
 
     const onChange = (e: NativeSyntheticEvent<TextInputChangeEventData>) => {
-        setName(e.nativeEvent.text || '')
+        dispatch(setCreateDeckName(e.nativeEvent.text || ''))
     }
 
     const closeModal = () => {
         dispatch(setCreateDeckModalVisible(false));
     }
     const handleCreateDeck = async () => {
-        // TODO: use Thunk
-            try {
-
-                await firestore.getFirestore().collection('decks').add({
-                    name: name
-                })
-            } catch (error) {
-                console.error('Error adding deck:', error);
-            }
+        dispatch(createDeck())
     }
     return (
         <Modal animationType="fade" transparent={true} visible={isCreateDeckModalVisible}>

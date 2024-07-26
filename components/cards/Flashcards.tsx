@@ -1,5 +1,6 @@
 import {Pressable, StyleSheet, Text, View} from "react-native";
 import {
+    finishFlashCardsSession,
     revealCurrentStudyingCard,
     selectCurrentStudyingCard,
     selectCurrentStudyingCardRevealed,
@@ -14,7 +15,6 @@ export default function Flashcards() {
     const dispatch = useAppDispatch();
     const currentStudyingCard = useAppSelector(selectCurrentStudyingCard)
     const isCardRevealed = useAppSelector(selectCurrentStudyingCardRevealed)
-
 
     const handleOnCardPress = () => {
         dispatch(revealCurrentStudyingCard())

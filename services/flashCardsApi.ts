@@ -3,6 +3,11 @@ import {Card, CardsData, responseToCard, toUpsertPayload} from "@/models/card";
 import {Deck} from "@/models/deck";
 
 export const flashCardsApi = {
+    createDeck: async  (name: string) => {
+        return await firestore.getFirestore().collection('decks').add({
+            name: name,
+        })
+    },
     getAllDecks: async () => {
         const response =  await firestore.getFirestore().collection<Deck>('decks').get()
         return response.docs.map(doc => {
@@ -14,8 +19,18 @@ export const flashCardsApi = {
             }
         })
     },
+    createCard: async (card: any) => {
+        return await firestore.getFirestore().collection<Card>('cards').add(card)
+    },
+    getReadyToStudyCountByDeckId: async (deckId: string) => {
+        const readyToStudy = await firestore.getFirestore().collection<Card>('cards')
+            .where("deckId", "==", deckId)
+            .where("nextReview", "<=", Date.now() / 1000)
+            .count()
+            .get()
+        return readyToStudy.data().count
+    },
     getAllCardsDataByDeckId: async (deckId: string): Promise<CardsData> => {
-        console.log('get all cards')
         const dataQuery =  firestore.getFirestore().collection<Card>('cards')
             .where("deckId", "==", deckId)
             .orderBy("nextReview", "asc")
@@ -26,10 +41,11 @@ export const flashCardsApi = {
             .get()
         const toReviewCountPromise = firestore.getFirestore().collection<Card>('cards')
             .where("deckId", "==", deckId)
-            .where("nextReview", ">=", Date.now() / 1000)
+            .where("nextReview", ">", 0)
+            .where("nextReview", "<=", Date.now() / 1000)
             .count()
             .get()
-        const dataPromise = dataQuery.limit(10).get()
+        const dataPromise = dataQuery.limit(50).get()
         const totalCountPromise = dataQuery.count().get();
 
         const [dataResponse, totalCountResponse, notStudiedCountResponse, toReviewCountResponse] = await Promise.all([dataPromise, totalCountPromise, notStudiedCountPromise, toReviewCountPromise])
@@ -38,6 +54,7 @@ export const flashCardsApi = {
             totalCount: totalCountResponse.data().count,
             toReviewCount: toReviewCountResponse.data().count,
             notStudiedCount: notStudiedCountResponse.data().count,
+            readyToStudyCount: toReviewCountResponse.data().count + notStudiedCountResponse.data().count,
             cards: dataResponse.docs.map(doc => {
                 return {
                     ...responseToCard(doc.data()),
@@ -47,19 +64,14 @@ export const flashCardsApi = {
             })
         }
     },
-    getCardsPageByDeckId: async (deckId: string, startAfter: number = 0): Promise<Card[]> =>{
-        console.log('get page')
-        let dataQuery =  firestore.getFirestore().collection<Card>('cards')
+    getCardsPageByDeckId: async (deckId: string, startAfter: Card): Promise<Card[]> =>{
+        let dataResponse =  await firestore.getFirestore().collection<Card>('cards')
             .where("deckId", "==", deckId)
             .orderBy("nextReview", "asc")
-            .startAfter(startAfter)
-            .limit(10)
+            .startAfter(startAfter.nextReview)
+            .limit(50)
+            .get()
 
-
-        console.log('startAfter', startAfter)
-
-        const dataResponse = await dataQuery.get();
-        console.log('page resp', dataResponse.docs)
         return dataResponse.docs.map(doc => {
             return {
                 ...responseToCard(doc.data()),
@@ -71,6 +83,7 @@ export const flashCardsApi = {
     getCardsToStudyByDeckId: async (deckId: string, limit: number) => {
         const response = await firestore.getFirestore().collection<Card>('cards')
             .where("deckId", "==", deckId)
+            .where("nextReview", "<=", Date.now() / 1000)
             .orderBy("nextReview", "asc")
             .limit(limit)
             .get()
@@ -83,6 +96,6 @@ export const flashCardsApi = {
         })
     },
     updateCard: async(card: Card) => {
-        await firestore.getFirestore().collection<Card>('cards').doc(card.id).update(toUpsertPayload(card))
+        return await firestore.getFirestore().collection<Card>('cards').doc(card.id).update(toUpsertPayload(card))
     }
 }

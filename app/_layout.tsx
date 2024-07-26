@@ -34,7 +34,6 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
             <Stack.Screen name="screens/cards/[deckId]/index" options={{ headerShown: false }} />
-            <Stack.Screen name="screens/cards/[deckId]/add" options={{ headerShown: false }} />
             <Stack.Screen name="screens/cards/[deckId]/study" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
