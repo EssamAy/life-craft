@@ -1,20 +1,32 @@
-import {Pressable, StyleSheet, Text, View} from "react-native";
+import {BackHandler, Modal, Pressable, StyleSheet, Text, View} from "react-native";
 import {
+    fetchCardsToStudy,
     finishFlashCardsSession,
     revealCurrentStudyingCard,
+    selectCardsToStudyCount,
     selectCurrentStudyingCard,
     selectCurrentStudyingCardRevealed,
     updateCurrentCardAndMoveToTheNext
 } from "@/store/flashCardsSlice";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@/hooks/state";
 import {readableNextReviewActionTime} from "@/utils/time";
 import calculateNextReviewTime from "@/utils/sm2";
+import LottieView from "lottie-react-native";
+import {Colors} from "@/constants/Colors";
+import WebView from "react-native-webview";
+import {Ionicons} from "@expo/vector-icons";
+import {router} from "expo-router";
 
 export default function Flashcards() {
     const dispatch = useAppDispatch();
     const currentStudyingCard = useAppSelector(selectCurrentStudyingCard)
     const isCardRevealed = useAppSelector(selectCurrentStudyingCardRevealed)
+    const count = useAppSelector(selectCardsToStudyCount)
+
+    const [glosebeVisible, setGlosbeVisible] = useState(false)
+    const [googleTranslateVisible, setGoogleTranslateVisible] = useState(false)
+
 
     const handleOnCardPress = () => {
         dispatch(revealCurrentStudyingCard())
@@ -22,20 +34,56 @@ export default function Flashcards() {
     const handleOnActionPress = (rating: 'again'|'hard'|'good'|'easy') => {
         dispatch(updateCurrentCardAndMoveToTheNext(rating))
     }
+    useEffect(() => {
+        setGlosbeVisible(false)
+    }, [currentStudyingCard]);
+
+    const closeTranslationModals = () => {
+        setGlosbeVisible(false)
+        setGoogleTranslateVisible(false)
+        return true
+    }
+
+    useEffect(() => {
+
+        const backHandler = BackHandler.addEventListener(
+            'hardwareBackPress',
+            closeTranslationModals,
+        );
+
+        return () => backHandler.remove();
+    }, []);
 
     return <View style={styles.container}>
         {
             currentStudyingCard &&
-            <><Pressable onPress={handleOnCardPress} style={styles.cardContent}>
-                <View>
-                    <Text style={styles.cardText}>{currentStudyingCard.front}</Text>
-                    {
-                        isCardRevealed && <View style={{borderTopWidth: 2, borderColor: '#e4e4e4'}}><Text
-                            style={styles.cardText}>{currentStudyingCard.back}</Text></View>
-                    }
+
+            <View style={styles.cardsContgainer}>
+                <Pressable onPress={handleOnCardPress} style={styles.cardContent}>
+                    <View style={{padding: 20}}>
+                        <Text style={styles.cardText}>{currentStudyingCard.front}</Text>
+                        {
+                            isCardRevealed &&
+                            <>
+                                <View style={{borderTopWidth: 2, borderColor: '#e4e4e4'}}>
+                                    <Text style={styles.cardText}>{currentStudyingCard.back}</Text>
+                                </View>
+                                <View style={{flexDirection: "row", gap: 5}}>
+                                    <Pressable style={{backgroundColor: Colors.gray, padding: 5, borderRadius: 5}}
+                                               onPress={() => setGlosbeVisible(!glosebeVisible)}>
+                                        <Text>Glosbe</Text>
+                                    </Pressable>
+                                    <Pressable style={{backgroundColor: Colors.gray, padding: 5, borderRadius: 5}}
+                                               onPress={() => setGoogleTranslateVisible(!googleTranslateVisible)}>
+                                        <Text>Google translate</Text>
+                                    </Pressable>
+                                </View>
+
+                            </>
+                        }
                 </View>
 
-            </Pressable>
+                </Pressable>
                 {isCardRevealed &&
                     <View style={styles.actionsContainer}>
                         <Pressable onPress={() => handleOnActionPress('again')} style={[styles.action, styles.again]}>
@@ -59,23 +107,63 @@ export default function Flashcards() {
                 {!isCardRevealed &&
                     <Text style={styles.note}>Tap on the card to show answer</Text>
                 }
-            </>
+            </View>
 
 
         }
         {
-            !currentStudyingCard &&
-            <View>
-                <Text>Congrats</Text>
-                {/*<LottieView*/}
-                {/*    source={require('../../assets/confetti.json')}*/}
-                {/*    autoPlay*/}
-                {/*    loop*/}
-                {/*    style={styles.animation}*/}
-                {/*/>*/}
+            !currentStudyingCard && count > 0 &&
+            <View style={{
+                flex: 1,
+                width: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#fff'
+            }}>
+
+                <LottieView
+                    source={require('../../assets/confetti.json')}
+                    autoPlay
+                    loop
+                    style={styles.animation}
+                />
+                <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 5}}>Amazing, you've
+                    reviewed all cards for now!</Text>
+                <Text style={{color: '#d1d0d0', fontWeight: 'bold'}}>New cards will appear soon</Text>
             </View>
         }
+        <Modal visible={glosebeVisible || googleTranslateVisible} animationType="fade" onRequestClose={() => () => {setGlosbeVisible(false); setGoogleTranslateVisible(false)}}>
+            <View style={{flex: 1}}>
+                <View style={{
+                    flexDirection: "row", justifyContent: "space-between",
+                    alignItems: 'center',
+                    paddingHorizontal: 16,
+                    height: 56,
+                    backgroundColor: '#fff',
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#ddd'
+                }}>
+                    <Text style={{fontWeight: "bold"}}>{currentStudyingCard?.front}</Text>
+                    <Ionicons onPress={() => {setGlosbeVisible(false); setGoogleTranslateVisible(false)}} name="close" size={24} color="black"/>
+                </View>
+                {
+                    glosebeVisible &&
+                    <WebView
+                        scrollEnabled={true}
+                        source={{uri: 'https://glosbe.com/it/ar/' + currentStudyingCard?.front}}
+                    />
+                }
 
+                {googleTranslateVisible &&
+                    <WebView
+                        scrollEnabled={true}
+                        source={{uri: 'https://translate.google.com/?sl=it&tl=ar&text='+ currentStudyingCard?.front +'&op=translate'}}
+                    />
+                }
+
+            </View>
+
+        </Modal>
     </View>
 
 
@@ -84,19 +172,22 @@ export default function Flashcards() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    cardsContgainer: {
+        flex: 1,
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 20,
     },
     animation: {
-        width: 200,
-        height: 200,
+        width: 250,
+        height: 250
     },
     cardContent: {
         flex: 1,
         width: '100%',
         justifyContent: 'center',
-        padding: 20,
+        // padding: 20,
         borderRadius: 20,
         backgroundColor: "#fff",
     },

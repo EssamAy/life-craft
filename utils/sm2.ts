@@ -53,7 +53,6 @@ function calculateNextReviewTime(card: Card, rating: 'again'|'hard'|'good'|'easy
         newInterval = Math.min(maxInterval, newInterval);
     }
 
-    console.log('newInterval', rating, newInterval)
     // Return the updated card information
     return {
         ...card,

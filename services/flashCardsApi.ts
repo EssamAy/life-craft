@@ -80,12 +80,11 @@ export const flashCardsApi = {
             }
         })
     },
-    getCardsToStudyByDeckId: async (deckId: string, limit: number) => {
+    getCardsToStudyByDeckId: async (deckId: string) => {
         const response = await firestore.getFirestore().collection<Card>('cards')
             .where("deckId", "==", deckId)
             .where("nextReview", "<=", Date.now() / 1000)
             .orderBy("nextReview", "asc")
-            .limit(limit)
             .get()
         return response.docs.map(doc => {
             return {

@@ -4,11 +4,10 @@ import {AppThunk, RootState} from "@/store/store";
 import {flashCardsApi} from "@/services/flashCardsApi";
 import {Card, CardsData, responseToCard} from "@/models/card";
 import calculateNextReviewTime from "@/utils/sm2";
-import * as firestore from "@react-native-firebase/firestore";
 
 interface FlashCardsSliceState {
     settings: {
-        cardsPerStudySession: number
+        // cardsPerStudySession: number
     },
     decks: Deck[],
     createDeckModal: {
@@ -29,7 +28,7 @@ interface FlashCardsSliceState {
 
 const initialState: FlashCardsSliceState = {
     settings: {
-        cardsPerStudySession: 10
+        // cardsPerStudySession: 10
     },
     decks: [],
     createDeckModal: {
@@ -186,7 +185,6 @@ export const createCard = (deckId: string): AppThunk =>
                     ]
                 }
             }
-            console.log('payload', payload)
             dispatch(setCardsData(payload))
         } catch (error) {
             console.error('Error adding card:', error);
@@ -197,7 +195,6 @@ export const fetchReadyToStudyCountByDeckId = (deckId: string): AppThunk =>
     async (dispatch, getState) => {
         const {flashCards} = getState()
         if (!flashCards.cards[deckId] || !flashCards.cards[deckId].readyToStudyCount) {
-            console.log('fatching ready to study count')
             try {
                 const readyToStudyCount = await flashCardsApi.getReadyToStudyCountByDeckId(deckId)
                 dispatch(setReadyToStudyCount({
@@ -229,7 +226,6 @@ export const finishFlashCardsSession = (deckId: string): AppThunk =>
 
 export const reCalculateStatsForAllDecks = (): AppThunk =>
     async (dispatch, getState) => {
-        console.log('reCalculateStatsForAllDecks')
         const {flashCards} = getState()
         flashCards.decks.forEach(deck => {
             dispatch(reCalculateStatsByDeckId(deck.id))
@@ -237,7 +233,6 @@ export const reCalculateStatsForAllDecks = (): AppThunk =>
     }
 export const reCalculateStatsByDeckId = (deckId: string): AppThunk =>
     async (dispatch, getState) => {
-        console.log('recalculate stats', deckId)
         const {flashCards} = getState()
         if(flashCards.cards[deckId] && flashCards.cards[deckId].cards && flashCards.cards[deckId].cards.length >0 && flashCards.cards[deckId].cards[0].nextReview <= Date.now() / 1000) {
             const notStudied = flashCards.cards[deckId] && flashCards.cards[deckId].cards.filter(card => card.lastReview === 0).length
@@ -304,7 +299,7 @@ export const fetchCardsToStudy = (deckId: string): AppThunk =>
         const {flashCards} = getState()
         try {
             dispatch(resetStudying())
-            const cards = await flashCardsApi.getCardsToStudyByDeckId(deckId, flashCards.settings.cardsPerStudySession);
+            const cards = await flashCardsApi.getCardsToStudyByDeckId(deckId);
             dispatch(setCardsToStudy(cards))
         } catch (err) {
             console.error(err)

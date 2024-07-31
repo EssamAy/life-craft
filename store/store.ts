@@ -1,7 +1,8 @@
 import {Action, combineSlices, configureStore, ThunkAction} from '@reduxjs/toolkit';
 import {flashCardsSlice} from "@/store/flashCardsSlice";
+import {authSlice} from "@/store/authSlice";
 
-const rootReducer = combineSlices(flashCardsSlice)
+const rootReducer = combineSlices(authSlice, flashCardsSlice)
 export type RootState = ReturnType<typeof rootReducer>
 
 export const store = configureStore({

@@ -1,13 +1,13 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
+import {useFonts} from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import {useEffect} from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {useColorScheme} from '@/hooks/useColorScheme';
 import {Provider} from "react-redux";
 import {store} from "@/store/store";
+import Routes from "@/app/routes";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -18,7 +18,9 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
+
   useEffect(() => {
+
     if (loaded) {
       SplashScreen.hideAsync();
     }
@@ -31,12 +33,7 @@ export default function RootLayout() {
   return (
       <Provider store={store}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)"  options={{ headerShown: false }} />
-            <Stack.Screen name="screens/cards/[deckId]/index" options={{ headerShown: false }} />
-            <Stack.Screen name="screens/cards/[deckId]/study" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+          <Routes/>
         </ThemeProvider>
       </Provider>
 

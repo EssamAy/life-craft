@@ -1,30 +1,29 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import {StyleSheet} from 'react-native';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import {ThemedText} from '@/components/ThemedText';
-import {ThemedView} from '@/components/ThemedView';
+import {StyleSheet, Text, View} from 'react-native';
+import React from "react";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {Link} from "expo-router";
 
 export default function DashboardScreen() {
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Dashboard</ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <SafeAreaView style={styles.container}>
+        <Text style={{fontSize: 20, fontWeight: 'bold', marginBottom: 5}}>Flashcards</Text>
+        <View style={{
+          backgroundColor: '#fff',
+          padding: 10,
+          borderRadius: 10
+        }}>
+          <Text>Total cards</Text>
+          <Text>15</Text>
+        </View>
+
+      </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  container: {
+    flex: 1,
+    padding: 5
   },
 });

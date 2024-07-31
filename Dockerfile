@@ -1,4 +1,4 @@
-FROM node
+FROM node:latest
 
 WORKDIR /
 RUN npm -g i eas-cli @expo/ngrok sharp-cli
