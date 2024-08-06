@@ -10,10 +10,11 @@ export default function Profilecreen() {
 
     const user = useAppSelector(selectUser)
 
-    const signOut = () => {
-        auth().signOut().then(() => {
-            router.navigate('/screens/auth/SignIn')
-        })
+    const signOut = async () => {
+        await auth().signOut()
+    }
+    if (!user) {
+        router.navigate(`/screens/auth/SignIn`);
     }
     return (
         <SafeAreaView style={styles.container}>
@@ -30,11 +31,14 @@ export default function Profilecreen() {
                     <Text style={{fontWeight: 'bold', fontSize: 16}}>{user?.displayName}</Text>
                     <Text>{user?.email}</Text>
                 </View>
-                <Image style={{
+                {
+                    user?.photoURL && user?.photoURL?.length && <Image style={{
                     width: 50, height: 50, borderRadius: 50
                 }} source={{
                     uri: user?.photoURL
                 }}/>
+                }
+
             </View>
 
             <Pressable onPress={signOut}>

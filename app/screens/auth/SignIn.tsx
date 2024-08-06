@@ -5,11 +5,21 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {GoogleSignin} from "@react-native-google-signin/google-signin";
 import auth from '@react-native-firebase/auth';
 import {router} from "expo-router";
+import {useAppSelector} from "@/hooks/state";
+import {selectAuthChecked, selectUser} from "@/store/authSlice";
 
 export default function SignIn() {
     GoogleSignin.configure({
         webClientId: '596944786720-4mlb6jjdm1i1a28v1ua6sjk6ni0d7iav.apps.googleusercontent.com',
     });
+
+    const user = useAppSelector(selectUser)
+    const authChecked = useAppSelector(selectAuthChecked)
+
+    if (authChecked && user) {
+        router.navigate(`/`);
+    }
+
     const signIn = async () => {
         try {
             const {idToken} = await GoogleSignin.signIn();

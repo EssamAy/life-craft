@@ -10,17 +10,23 @@ import {
     selectDeckById,
     setCreateCardModalVisible
 } from "@/store/flashCardsSlice";
-import {useLocalSearchParams} from "expo-router";
+import {router, useLocalSearchParams} from "expo-router";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {AntDesign} from "@expo/vector-icons";
 import {Colors} from "@/constants/Colors";
 import AddCard from "@/components/cards/AddCard";
+import {selectUser} from "@/store/authSlice";
 
 
 export default function Deck() {
     const params = useLocalSearchParams()
     const deck = useAppSelector(selectDeckById(params.deckId))
     const cards = useAppSelector(selectCardsByDeckId(params.deckId))
+    const user = useAppSelector(selectUser)
+
+    if (!user) {
+        router.navigate(`/screens/auth/SignIn`);
+    }
 
     const dispatch = useAppDispatch()
 

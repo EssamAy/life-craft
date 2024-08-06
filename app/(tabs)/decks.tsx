@@ -7,6 +7,8 @@ import {useAppDispatch, useAppSelector} from "@/hooks/state";
 import {fetchDecks, reCalculateStatsForAllDecks, selectDecks, setCreateDeckModalVisible} from "@/store/flashCardsSlice";
 import {AntDesign} from '@expo/vector-icons';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {router} from "expo-router";
+import {selectUser} from "@/store/authSlice";
 import ScrollView = Animated.ScrollView;
 
 
@@ -14,7 +16,7 @@ export default function Decks() {
 
     const dispatch = useAppDispatch()
     const decks = useAppSelector(selectDecks)
-
+    const user = useAppSelector(selectUser)
 
     useEffect(() => {
         setInterval(() => {
@@ -26,6 +28,10 @@ export default function Decks() {
     const handleOpenModal = () => {
         dispatch(setCreateDeckModalVisible(true));
     };
+
+    if (!user) {
+        router.navigate(`/screens/auth/SignIn`);
+    }
 
     return (
         <SafeAreaView style={styles.container}>

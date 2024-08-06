@@ -2,7 +2,6 @@ import {BackHandler, Pressable, StyleSheet, Text, TouchableOpacity, View} from "
 import {Ionicons} from "@expo/vector-icons";
 import React, {useEffect} from "react";
 import {useAppDispatch, useAppSelector} from "@/hooks/state";
-import { getAuth } from "firebase/auth";
 import {
     fetchCardsToStudy,
     finishFlashCardsSession,
@@ -12,6 +11,7 @@ import {
 import {router, useLocalSearchParams} from "expo-router";
 import Flashcards from "@/components/cards/Flashcards";
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {selectUser} from "@/store/authSlice";
 
 
 export default function Study() {
@@ -19,6 +19,11 @@ export default function Study() {
     const dispatch = useAppDispatch();
     const index = useAppSelector(selectCurrentStudyingCardIndex)
     const count = useAppSelector(selectCardsToStudyCount)
+    const user = useAppSelector(selectUser)
+
+    if (!user) {
+        router.navigate(`/screens/auth/SignIn`);
+    }
 
     const finishSession = () => {
         dispatch(finishFlashCardsSession(params.deckId))

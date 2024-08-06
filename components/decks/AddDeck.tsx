@@ -19,9 +19,11 @@ import {
     setCreateDeckModalVisible,
     setCreateDeckName
 } from "@/store/flashCardsSlice";
+import {useTranslation} from "react-i18next";
 
 
 const AddDeck = () => {
+    const {t} = useTranslation();
 
     const dispatch = useAppDispatch()
     const name = useAppSelector(selectCreateDeckName)
@@ -43,7 +45,7 @@ const AddDeck = () => {
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     <View style={styles.headerContainer}>
-                        <Text style={styles.title}>New deck</Text>
+                        <Text style={styles.title}>{t('flashcards.decks.newDeck')}</Text>
                         <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
                             <Ionicons name="close" size={24} color="black"/>
                         </TouchableOpacity>
